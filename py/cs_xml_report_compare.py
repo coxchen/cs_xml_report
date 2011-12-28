@@ -9,6 +9,7 @@
 #
 
 import sys, hashlib
+from difflib import SequenceMatcher as seqmatcher
 from BeautifulSoup import BeautifulStoneSoup as bs
 
 SEPARATOR_LENGTH = 43
@@ -141,14 +142,27 @@ class XML_Report_Comparator:
         self.show_diff(vulnType)
     
     def show_vuln(self, vulnType, catalog, vulnIdx):
-        uuid = self.diffAbstract[catalog][vulnType].values()[int(vulnIdx) - 1]['uuid']
+        vulnAbstract = self.diffAbstract[catalog][vulnType].values()[int(vulnIdx) - 1]
+        uuid = vulnAbstract['uuid']
         vuln = self.soup[catalog].findAll('rd:vulnerability', uuid = uuid)[0]
         
         print '-' * 30
-        print 'UUID:' + self.diffAbstract[catalog][vulnType].values()[int(vulnIdx) - 1]['uuid']
+        print 'UUID:' + uuid
         print '-' * 30
-        tbAbstract = self.diffAbstract[catalog][vulnType].values()[int(vulnIdx) - 1]['tb']
+        tbAbstract = vulnAbstract['tb']
         print tbAbstract.replace(';', '\n')
+        
+        print
+        counterCatalog = filter(lambda x: x!= catalog, [x for x in self.diffAbstract.keys()])[0]
+        if counterCatalog == 'INSERT':
+            simIdx = 0
+        else:
+            simIdx = len(self.diffAbstract['INSERT'][vulnType].keys())
+        for counterAbstract in self.diffAbstract[counterCatalog][vulnType].values():
+            simIdx += 1
+            similarity = seqmatcher(None, tbAbstract, counterAbstract['tb']).quick_ratio()
+            if similarity > 0.8:
+                print ' #{idx} {sim:.2f}'.format(idx = simIdx, sim = similarity), counterAbstract['uuid']
         
         print '\n  => Press d/D to show detailed traceback;'
         print '  => ANY KEY ELSE to continue:',
