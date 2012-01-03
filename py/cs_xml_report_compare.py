@@ -109,7 +109,7 @@ class XML_Report_Comparator:
         print 'NEW:', self.newVulnCount, ',', self.newCount, 'unique paths'
         print
         
-        print ' IDX | {:^15} | MAT | INS | DEL |'.format('V Type')
+        print ' IDX | {0:^15} | MAT | INS | DEL |'.format('V Type')
         print '-' * SEPARATOR_LENGTH
         for vulnType in self.stats.keys():
             print '{idx:^5}| {vType:>15} | {match:^3} | {ins:^3} | {delete:^3} |'.format(idx = self.stats.keys().index(vulnType) + 1, vType = vulnType, match = self.stats[vulnType]['MATCHED'], ins = self.stats[vulnType]['INSERT'], delete = self.stats[vulnType]['DELETE'])
